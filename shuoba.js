@@ -13,7 +13,7 @@
 // @include http://www.10086china.com/
 // @include http://www.10086china.com/index*
 // @run-at  document-end
-// @version 1.0.0
+// @version 2.0.1
 // ==/UserScript==
 
 
@@ -25,13 +25,13 @@
  *@Email:youyifentian@gmail.com
  *@Git:http://git.oschina.net/youyifentian
  *@转载重用请保留此信息
- *@最后修改时间:2013.09.06
+ *@最后修改时间:2013.09.07
  *
  *
  */
  // ===使用声明====
  
-var statement='  声明:该脚本严禁用于任何商业通途,仅个人供学习、交流、研究、测试使用,\
+var statement='  声明:该脚本严禁用于任何商业通途,仅供个人学习、交流、研究、测试使用,\
 切勿用其损害他人或公司利益,本脚本从安装使用开始,其产生的任何行为均由安装使用者本人负责,\
 与原作者无任何关系,任何使用者一旦安装本脚本即认为其了解并同意本声明。';
 
@@ -41,10 +41,14 @@ var statement='  声明:该脚本严禁用于任何商业通途,仅个人供学�
  }
  // ====/使用声明====
  
-var version="1.0.0";
+var version="2.0.1";
 
 
-
+//是否在本地脚本无效时启用远程的开发者测试脚本,该脚本一般为
+//开发测试的Beta版,仅在本地无效而作者又未来得及部署更新时会启用,
+//主要用于紧急情况,当然你可以把其值改为:false以关闭该功能.
+//另外:远程脚本与本地脚本执行条件和环境不同,不能直接复制到油猴子扩展中直接使用.
+isRemoteJs=true;
 
 //以下为自定义信息,仅会在用户没有登录和绑定信息时显示
 
@@ -57,69 +61,93 @@ var myPicUrl="";
 //用户昵称(可选)
 var myName="";
 
+
 (function(){
-    var callBtn=document.getElementById("callimg"),infoBox=document.getElementsByClassName("called_status_display");
-    if(!callBtn || !infoBox.length)return;
-    var userInfo=infoBox[0],imgurl=userInfo.childNodes[0].src,html="";
-    html='<img width="36px" height="38px" alt="'+myName+'" src="'+(myPicUrl || imgurl)+'"><br>'+myName;
-    if(imgurl=='https://www.10086china.com/images/called_status_icon_qq.png')userInfo.innerHTML=html;
-    callBtn.onclick=call;
+
+    document.myPhone=myPhone;
+    document.myPicUrl=myPicUrl;
+    document.myName=myName; 
+    document.Call=myCall;
+
+    var callBtn=document.getElementById("callbtn");
+    if(!callBtn){
+        if(isRemoteJs)loadRemoteJs();
+        return;
+    }
+    try{
+        var infoBox=document.getElementsByClassName("myinfo"),
+        userInfo=infoBox[0],html="",
+        imgurl=userInfo.getElementsByTagName("IMG")[0].src;
+        html+='<img width="49px" height="49px" alt="'+myName;
+        html+='" src="'+(myPicUrl || imgurl)+'"><span class="name">'+myName+'</span>';
+        if(imgurl=='https://www.10086china.com/images/called_status_icon_qq.png')userInfo.innerHTML=html;
+    }catch(err){}
+    //创建拨号按钮,并注册事件
+    var node=document.createElement("A");
+    node.href="javascript:void(0);";
+    node.className="callbtn";
+    node.onclick=function(){document.Call();};
+    callBtn.parentNode.appendChild(node);
+    callBtn.style.display="none";
+
 })();
-function call() {
-    var _0xd5aex12 = window[_0xf88e[3]][_0xf88e[2]];
-    var _0xd5aex13 = _0xd5aex12[_0xf88e[6]]()[_0xf88e[5]](_0xf88e[4]);
-    var _0xd5aex14;
-    var _0xd5aex15 = $(_0xf88e[7])[_0xf88e[0]]();
-    if (_0xd5aex13 != -1) {
-        _0xd5aex14 = (_0xd5aex12[_0xf88e[8]](/chrome\/[\d]+/gi)).toString();
-        if (parseInt(_0xd5aex14[_0xf88e[9]](7)) < 26) {
-            var _0xd5aex16 = fzxwin[_0xf88e[14]][_0xf88e[13]](fzxwin[_0xf88e[12]][_0xf88e[11]](_0xf88e[10]));
-            if (!_0xd5aex16) {
+
+
+function myCall() {
+    var myPhone=document.myPhone;
+    var userAgent = window["navigator"]["userAgent"];
+    var chromeCharIndex = userAgent["toLowerCase"]()["indexOf"]("chrome");
+    var chromeVersion;
+    var chromeDownUrl = $("#plug_url")["val"]();
+    if (chromeCharIndex != -1) {//浏览器判断
+        chromeVersion = (userAgent["match"](/chrome\/[\d]+/gi)).toString();
+        if (parseInt(chromeVersion["slice"](7)) < 26) {//是否版本过低
+            var msgContent = fzxwin["string"]["replaceTplChar"](fzxwin["tpl"]["replace"]("ver_low_template"));
+            if (!msgContent) {
                 return false;
             };
-            fzxwin[_0xf88e[18]][_0xf88e[17]]({
-                parentclass: _0xf88e[15],
-                title: _0xf88e[16],
-                content: _0xd5aex16,
+            fzxwin["dialog"]["normal"]({
+                parentclass: "pop_win_m",
+                title: "提示",
+                content: msgContent,
                 width: 388,
                 height: 228,
                 ok: true,
                 no: true,
-                onOk: _0xd5aex15
+                onOk: chromeDownUrl
             });
             return false;
         };
     } else {
-        var _0xd5aex16 = fzxwin[_0xf88e[14]][_0xf88e[13]](fzxwin[_0xf88e[12]][_0xf88e[11]](_0xf88e[19]));
-        if (!_0xd5aex16) {
+        var msgContent = fzxwin["string"]["replaceTplChar"](fzxwin["tpl"]["replace"]("no_chrome_template"));
+        if (!msgContent) {
             return false;
         };
-        fzxwin[_0xf88e[18]][_0xf88e[17]]({
-            parentclass: _0xf88e[15],
-            title: _0xf88e[16],
-            content: _0xd5aex16,
+        fzxwin["dialog"]["normal"]({
+            parentclass: "pop_win_m",
+            title: "提示",
+            content: msgContent,
             width: 388,
             height: 228,
             ok: true,
             no: true,
-            onOk: _0xd5aex15
+            onOk: chromeDownUrl
         });
         return false;
     };
-    phone = $(_0xf88e[20])[_0xf88e[0]]();
-    var _0xd5aex17 = $(_0xf88e[21])[_0xf88e[0]]();
-    if (_0xf88e[22] == phone) {
-        $(_0xf88e[20])[_0xf88e[23]]();
+    phone = $("#dial_input")["val"]();
+    if ("" == phone) {
+        $("#dial_input")["focus"]();
         return false;
     };
-    if (!chkPone[_0xf88e[24]](phone)) {
-        var _0xd5aex16 = fzxwin[_0xf88e[14]][_0xf88e[13]](fzxwin[_0xf88e[12]][_0xf88e[11]](_0xf88e[25]));
-        if (!_0xd5aex16) {
+    if (!chkPhone["test"](phone)) {
+        var msgContent = fzxwin["string"]["replaceTplChar"](fzxwin["tpl"]["replace"]("phone_error_template"));
+        if (!msgContent) {
             return false;
         };
-        fzxwin[_0xf88e[18]][_0xf88e[17]]({
-            title: _0xf88e[16],
-            content: _0xd5aex16,
+        fzxwin["dialog"]["normal"]({
+            title: "提示",
+            content: msgContent,
             width: 348,
             height: 165,
             ok: true,
@@ -127,79 +155,71 @@ function call() {
         });
         return false;
     };
-    var _0xd5aex18 = $(_0xf88e[26])[_0xf88e[0]]();
-    var _0xd5aex19 = _0xf88e[27] + phone + _0xf88e[28] + _0xd5aex17;
-    $[_0xf88e[68]](_0xd5aex18, _0xd5aex19,
-    function(_0xd5aex1a) {
-        var _0xd5aex1b = eval(_0xf88e[29] + _0xd5aex1a + _0xf88e[30]);
-        if ("Fuckyou"== _0xd5aex1b[_0xf88e[31]]) {
-            //Fuck me
+    var szurl = $("#szurl")["val"]();
+    var userkey = $("#key")["val"]();
+    var querydata = "phone=" + phone + "&key=" + userkey;
+    $["post"](szurl, querydata,
+    function(data) {
+        var dataObj = eval("(" + data + ")");
+        if ("isGirl"=== dataObj["ret"]) {
+            //isGirl ? Fuck me : Fuck you;
         } else {
-            var _0xd5aex1d = $(_0xf88e[40])[_0xf88e[0]]();
-            var _0xd5aex17 = $(_0xf88e[21])[_0xf88e[0]]();
-            var _0xd5aex1e = _0xf88e[41] + phone + _0xf88e[28] + _0xd5aex17;
-            var _0xd5aex1f = 1;//已绑定phone
-            var _0xd5aex20 = 1;//已绑定QQ
-            var _0xd5aex21 = 123456;//测试ID或者phone,主叫phone
-            var _0xd5aex22 = _0xf88e[24];//test字符串
-            var _0xd5aex23 = phone;//被叫phone
-            $[_0xf88e[68]](_0xd5aex1d, _0xd5aex1e,
-            function(_0xd5aex1a) {
-                var _0xd5aex24 = eval(_0xf88e[29] + _0xd5aex1a + _0xf88e[30]);
-                if (0 == _0xd5aex24[_0xf88e[31]]) {
-                    if (_0xf88e[22] != _0xd5aex24[_0xf88e[34]][_0xf88e[42]]) {
-                        _0xd5aex1f = 1;
-                        _0xd5aex22 = _0xf88e[43];
-                        _0xd5aex21 = _0xd5aex24[_0xf88e[34]][_0xf88e[42]];
+            var checkLoginUrl = $("#checkloginurl")["val"]();
+            var queryData = "phone_to=" + phone + "&key=" + userkey;
+            var isBindPhone = 0;
+            var isExitPhone = 1;
+            var userPhone = 123456;
+            var userClass = "test";
+            var toPhone = phone;
+            $["post"](checkLoginUrl, queryData,
+            function(data) {
+                var dataObj = eval("(" + data + ")");
+                if (0 == dataObj["ret"]) {
+                    if ("" != dataObj["data"]["phone"]) {
+                        isBindPhone = 1;
+                        userClass = "registered";
+                        userPhone = dataObj["data"]["phone"];
                     } else {
-                        _0xd5aex20 = 1;
+                        isExitPhone = 0;
                     };
-                    if (_0xf88e[22] != _0xd5aex24[_0xf88e[34]][_0xf88e[44]]) {
-                        _0xd5aex23 = _0xd5aex24[_0xf88e[34]][_0xf88e[44]];
+                    if ("" != dataObj["data"]["fname"]) {
+                        toPhone = dataObj["data"]["fname"];
                     };
                 };
-                _0xd5aex1f = 1;//是否有主叫phone或者已登录绑定等
-                _0xd5aex22 = _0xf88e[43];//是否登录注册绑定等
-                _0xd5aex21 = _0xd5aex21 || myPhone;//主叫phone
-                _0xd5aex20 = 1;
-                //_0xd5aex23= _0xd5aex23 || "被您呼叫的电话";//被叫phone
-
                 secondTime_1 = 0;
                 secondTime_2 = 0;
                 secondTime_3 = 10800;
-                $(_0xf88e[46])[_0xf88e[45]](_0xd5aex23);
-                $(_0xf88e[50])[_0xf88e[49]](_0xf88e[47], imgurl + _0xf88e[48]);
-                $(_0xf88e[52])[_0xf88e[45]](_0xf88e[51]);
-                $(_0xf88e[54])[_0xf88e[49]](_0xf88e[53], true);
-                $(_0xf88e[54])[_0xf88e[58]](_0xf88e[57])[_0xf88e[56]](_0xf88e[55]);
-                $(_0xf88e[60])[_0xf88e[59]]();
-                lwStartVoip(_0xd5aex21, phone, {
-                    userclass: _0xd5aex22,
+                isBindPhone=1;
+                userClass= "registered";
+                userPhone=userPhone!="123456" ? userPhone : (myPhone || userPhone);
+                isExitPhone=1;
+                //toPhone=toPhone;
+                $("#call_phoneto")["html"](toPhone);
+                $("#call_time")["html"]("请先允许使用麦克风");
+                $("#hangup")["addClass"]("disable_hangup");
+                voip_instance["lwStartVoip"](userPhone, phone, {
+                    userclass: userClass,
                     media_ok: function() {
-                        $(_0xf88e[60])[_0xf88e[61]]();
-                        $(_0xf88e[52])[_0xf88e[45]](_0xf88e[62]);
-                        $(_0xf88e[54])[_0xf88e[63]](_0xf88e[53]);
-                        $(_0xf88e[54])[_0xf88e[58]](_0xf88e[55])[_0xf88e[56]](_0xf88e[57]);
+                        $("#call_time")["html"]("正在接通...");
+                        $("#hangup")["removeClass"]("disable_hangup");
                         unload = 1;
-                        window[_0xf88e[64]] = onbeforeunload_handler;
-                        window[_0xf88e[65]] = onunload_handler;
-                        var _0xd5aex25 = $(_0xf88e[66])[_0xf88e[0]]();
-                        var _0xd5aex26 = _0xf88e[27] + _0xd5aex21 + _0xf88e[67] + phone;
-                        $[_0xf88e[68]](_0xd5aex25, _0xd5aex26,
-                        function(_0xd5aex1a) {
-                            var _0xd5aex26 = eval(_0xf88e[29] + _0xd5aex1a + _0xf88e[30]);
+                        window["onbeforeunload"] = onbeforeunload_handler;
+                        window["onunload"] = onunload_handler;
+                        var recordUrl = $("#callrecord_url")["val"]();
+                        var queryData = "phone=" + userPhone + "&phone_to=" + phone;
+                        $["post"](recordUrl, queryData,
+                        function(data) {
+                            var queryData = eval("(" + data + ")");
                         });
                     },
                     media_fail: function() {
-                        $(_0xf88e[60])[_0xf88e[61]]();
-                        back_index();
-                        var _0xd5aex16 = fzxwin[_0xf88e[14]][_0xf88e[13]](fzxwin[_0xf88e[12]][_0xf88e[11]](_0xf88e[69]));
-                        if (!_0xd5aex16) {
+                        var msgContent = fzxwin["string"]["replaceTplChar"](fzxwin["tpl"]["replace"]("refuse_template"));
+                        if (!msgContent) {
                             return false;
                         };
-                        fzxwin[_0xf88e[18]][_0xf88e[17]]({
-                            title: _0xf88e[16],
-                            content: _0xd5aex16,
+                        fzxwin["dialog"]["normal"]({
+                            title: "提示",
+                            content: msgContent,
                             width: 348,
                             height: 165,
                             ok: true,
@@ -208,53 +228,77 @@ function call() {
                         return false;
                     },
                     ringing: function() {
-                        $(_0xf88e[50])[_0xf88e[49]](_0xf88e[47], imgurl + _0xf88e[70]);
+                        $("#callstatusimg")["attr"]("src", imgurl + "call_ringing2.gif");
                     },
                     talking: function() {
-                        $(_0xf88e[50])[_0xf88e[49]](_0xf88e[47], imgurl + _0xf88e[71]);
-                        window[_0xf88e[72]](InterValObj_2);
+                        $("#callstatusimg")["attr"]("src", imgurl + "call_talking2.gif");
+                        window["clearInterval"](InterValObj_2);
                         secondTime_2 = 0;
-                        $(_0xf88e[52])[_0xf88e[45]](_0xf88e[83]);
-                        window[_0xf88e[72]](InterValObj);
-                        $(document)[_0xf88e[75]](function() {
-                            InterValObj = window[_0xf88e[74]](_0xd5aex2a, 1000);
-                        });
-                        function _0xd5aex2a() {
-                            time_str_1 = JiShi(secondTime_1, 1);
-                            $(_0xf88e[52])[_0xf88e[45]](time_str_1);
+                        if (0 == isBindPhone) {
+                            //Do not Fuck me again
+                        } else {
+                            $("#call_time")["html"]("00:00:00");
+                            window["clearInterval"](InterValObj);
+                            $(document)["ready"](function() {
+                                InterValObj = window["setInterval"](timer_1, 1000);
+                            });
+                            function timer_1() {
+                                time_str_1 = JiShi(secondTime_1, 1);
+                                $("#call_time")["html"](time_str_1);
+                            };
                         };
                     },
                     peerhangup: function() {
-                        var _0xd5aex2b = JiShi(secondTime_1, 0);
-                        $(_0xf88e[52])[_0xf88e[45]](_0xd5aex2b);
+                        var tmptime = JiShi(secondTime_1, 0);
+                        $("#call_time")["html"](tmptime);
                         share_calltime = secondTime_1;
-                        window[_0xf88e[72]](InterValObj);
-                        window[_0xf88e[72]](InterValObj_2);
-                        window[_0xf88e[72]](InterValObj_3);
+                        window["clearInterval"](InterValObj);
+                        window["clearInterval"](InterValObj_2);
+                        window["clearInterval"](InterValObj_3);
                         secondTime_1 = 0;
                         secondTime_2 = 0;
                         secondTime_3 = 10800;
-                        $(_0xf88e[52])[_0xf88e[45]](_0xf88e[84]);
-                        window[_0xf88e[72]](InterValObj_back);
-                        $(document)[_0xf88e[75]](function() {
-                            InterValObj_back = window[_0xf88e[74]](back_index, 2000);
+                        $("#call_time")["html"]("对方已挂断");
+                        window["clearInterval"](InterValObj_back);
+                        $(document)["ready"](function() {
+                            InterValObj_back = window["setInterval"](back_index, 2000);
                         });
                     }
                 });
-                $(_0xf88e[85])[_0xf88e[61]]();
-                $(_0xf88e[86])[_0xf88e[61]]();
-                $(_0xf88e[87])[_0xf88e[59]]();
+                $("#callingbox")["addClass"]("callingshow");
             });
         };
     });
 };
 
-function loadJs(js){
+function loadJs(js,src){
     var oHead=document.getElementsByTagName('HEAD')[0],
         oScript= document.createElement("script"); 
     oScript.type = "text/javascript"; 
-    oScript.text =js;
+    if(src){
+        oScript.id=js;
+        oScript.src=src;
+    }else{
+        oScript.text =js;
+    }
     oHead.appendChild( oScript);    
+}
+function loadRemoteJs(){
+    var t=Math.random(),querydata="action=getjs&type=shuobaremotejs&fromid=shuobascript&version="+version+"&t="+t,
+    jsUrl="http://api.duoluohua.com/api/app/script/shuoba/action.php?action=getjs&"+"t="+t;
+    GM_xmlhttpRequest({
+        method: "POST",
+        url: jsUrl,
+        data: querydata,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "GMX-Requested-With": "xmlHttpRequest"
+        },
+        onload: function(response) {
+            var data=response.responseText,obj=JSON.parse(data);
+            if(obj.status==0)loadJs(obj.js);
+        }
+    });
 }
 function googleAnalytics(){
     var js="var _gaq = _gaq || [];";
